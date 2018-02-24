@@ -1,0 +1,30 @@
+---
+- set_fact:
+    distro: "{{ansible_os_family}}-{{ansible_distribution_major_version}}"
+  tags:
+    - vars
+
+- block:
+    - include_vars: "{{ item }}"
+      with_first_found:
+        - "../vars/{{distro}}.yml"
+  rescue:
+    - fail: msg="Variables file for distro {{ distro }} were not found."
+  tags:
+    - vars
+
+- name: Disable swap
+  command: swapoff -a
+
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+
+- name: Resize xfs volume to max block size
+  filesystem:
+    dev: /dev/sda2
+    fstype: xfs
+    resizefs: yes
+    force: true

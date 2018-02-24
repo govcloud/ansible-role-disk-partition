@@ -1,0 +1,4 @@
+---
+dev: /dev/sda
+part: 2
+max_gap_kb: 1024
